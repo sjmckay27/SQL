@@ -1,0 +1,22 @@
+CREATE TABLE store (id INTEGER PRIMARY KEY, item TEXT, price INTEGER, quantity INTEGER, aisle INTEGER);
+
+INSERT INTO store VALUES
+(1, 'bike', 100.50, 10, 1),
+(2, 'shorts', 15.00, 20, 5),
+(3, 'polo', 20.99, 15, 2),
+(4, 'basketball', 9.99, 100, 1),
+(5, 'rugby ball', 12.50, 25, 1),
+(6, 'skateboard', 150.00, 3, 3),
+(7, 'pant', 59.75, 30, 5),
+(8, 'hat', 10.30, 50, 2),
+(9, 'golf clubs', 299.99, 10, 4),
+(10, 'golf shoes', 60.95, 12, 4),
+(11, 'golf gloves', 29.99, 39, 4),
+(12, 'skateboarding shoes', 100.00, 5, 3),
+(13, 'socks', 5.99, 99, 2),
+(14, 'running shoes', 100.00, 10, 2),
+(15, 'running shorts', 39.99, 16, 2);
+
+SELECT * FROM store;
+
+SELECT item, SUM(price) FROM store;
