@@ -1,0 +1,133 @@
+#Utilized a database with song information as well as the customer, employee and invoice data to query, aggregate and manipulate in order 
+#to answer various questions
+
+/*Show Customers (their full names, customer ID, and country) who are not in the US.*/
+
+SELECT (firstname||' '||lastname) AS fullname
+,customerid
+,country
+FROM chinook.customers
+WHERE country != 'USA';
+
+/*Show only the Customers from Brazil.*/
+SELECT (firstname||' '||lastname) AS fullname
+FROM chinook.customers
+WHERE country = 'Brazil';
+
+/*Find the Invoices of customers who are from Brazil. The resulting table should show 
+the customer's full name, Invoice ID, Date of the invoice, and billing country.*/
+
+SELECT (cust.firstname||' '||cust.lastname) AS fullname
+,invoices.InvoiceId
+,invoices.InvoiceDate
+,invoices.BillingCountry
+FROM chinook.customers as cust
+JOIN chinook.invoices
+ON cust.customerid = invoices.customerid;
+
+/*Show the Employees who are Sales Agents.*/
+
+SELECT *
+FROM chinook.employees
+WHERE Title LIKE 'S%';
+
+/*Find a unique/distinct list of billing countries from the Invoice table.*/
+SELECT DISTINCT billingcountry
+FROM chinook.invoices
+ORDER BY billingcountry ASC;
+
+/*Provide a query that shows the invoices associated with each sales agent. */
+SELECT (emp.LastName||' '||emp.Firstname) AS SalesAgent
+,inv.InvoiceId
+FROM chinook.Employees emp 
+JOIN chinook.Customers cust 
+ON cust.SupportRepId = emp.EmployeeId
+JOIN chinook.Invoices Inv 
+ON Inv.CustomerId = cust.CustomerId;
+
+/*Show the Invoice Total, Customer name, Country, and Sales Agent name 
+for all invoices and customers*/
+SELECT invoices.total
+,(customers.firstname||' '||customers.lastname) AS customer
+,customers.country as customer_country
+,(employees.firstname||' '||employees.lastname) AS SalesAgent
+FROM chinook.customers
+JOIN chinook.invoices
+ON invoices.CustomerId = customers.CustomerId
+JOIN chinook.employees
+ON employees.employeeid = customers.supportrepid
+ORDER BY SalesAgent;
+
+/*How many Invoices were there in 2009?*/
+SELECT invoices.invoiceid
+,invoices.invoicedate
+FROM chinook.invoices
+WHERE invoices.InvoiceDate LIKE '%2009%'
+ORDER BY invoices.InvoiceId ASC;
+
+/*What are the total sales for 2009?*/
+SELECT SUM(invoices.total) as total_revenue
+FROM chinook.invoices
+WHERE invoices.InvoiceDate LIKE '%2009%';
+
+/*Write a query that includes the purchased track name with each invoice line item.*/
+
+SELECT tracks.name 
+,inv.invoicelineid
+,inv.invoiceid
+,inv.trackid
+,inv.UnitPrice
+,inv.Quantity
+FROM chinook.invoice_items AS inv
+JOIN chinook.tracks
+ON inv.TrackId = tracks.TrackId;
+
+/*Write a query that includes the purchased track name AND artist name 
+with each invoice line item.*/
+SELECT t.Name, t.Composer, i.InvoiceLineId
+FROM chinook.Invoice_items i 
+JOIN chinook.Tracks t 
+ON i.TrackId = t.TrackId;
+
+/*Provide a query that shows all the Tracks, and include the Album name, Media type, and Genre.*/
+SELECT t.Name AS 'Track Name'
+, a.Title AS 'Album Title'
+, m.Name AS 'Media Type'
+, g.Name AS 'Genre'
+FROM chinook.tracks t
+JOIN chinook.Albums a 
+on a.AlbumId = t.AlbumId
+JOIN chinook.Media_Types m 
+on m.MediaTypeId = t.MediaTypeId
+JOIN chinook.Genres g 
+on g.GenreId = t.GenreId;
+
+/*Show the total sales made by each sales agent.*/
+SELECT (emp.firstname ||' '|| emp.lastname) AS Sales_Agent
+,ROUND(SUM(inv.total), 2) AS Total_Sales
+
+FROM chinook.employees emp
+JOIN chinook.customers AS cust
+ON cust.supportrepid = emp.employeeid 
+
+JOIN chinook.invoices AS inv
+ON inv.customerid = cust.customerid
+
+WHERE emp.title LIKE 'Sales Support Agent'
+GROUP BY Sales_Agent;
+
+/*Which sales agent made the most in sales in 2009?*/
+SELECT (emp.firstname ||' '|| emp.lastname) AS Sales_Agent
+,ROUND(SUM(inv.total), 2) AS Total_Sales
+
+FROM chinook.employees emp
+JOIN chinook.customers AS cust
+ON cust.supportrepid = emp.employeeid 
+
+JOIN chinook.invoices AS inv
+ON inv.customerid = cust.customerid
+
+WHERE emp.title LIKE 'Sales Support Agent'
+AND inv.invoicedate LIKE '%2009%'
+GROUP BY Sales_Agent
+ORDER BY Total_Sales DESC LIMIT 1;
